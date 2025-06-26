@@ -60,7 +60,9 @@ const VisualOutput: React.FC<VisualOutputProps> = ({ tripData, chatMessages }) =
         setItinerary(getMockItinerary());
       }
       
-      setAiInsights(aiResponse.message);
+      // Clean the AI insights text before setting it
+      const cleanedInsights = cleanInsightsText(aiResponse.message);
+      setAiInsights(cleanedInsights);
       
     } catch (error) {
       console.error('Error generating AI itinerary:', error);
@@ -127,6 +129,22 @@ const VisualOutput: React.FC<VisualOutputProps> = ({ tripData, chatMessages }) =
       image: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=400'
     }
   ];
+
+  const cleanInsightsText = (text: string): string => {
+    // Remove JSON objects from the insights text to make it readable
+    const cleanedText = text.replace(/\{\s*"type"\s*:\s*"[^"]+"[^}]*\}/g, '');
+    
+    // Clean up any extra whitespace and punctuation that might be left
+    const finalText = cleanedText
+      .replace(/\s+/g, ' ') // Replace multiple spaces with single space
+      .replace(/\s*,\s*/g, ', ') // Clean up commas
+      .replace(/\s*\.\s*/g, '. ') // Clean up periods
+      .replace(/\s*!\s*/g, '! ') // Clean up exclamation marks
+      .replace(/\s*\?\s*/g, '? ') // Clean up question marks
+      .trim();
+    
+    return finalText;
+  };
 
   const totalCost = itinerary.reduce((sum, item) => sum + item.cost, 0);
   const days = Math.max(...itinerary.map(item => item.day), 1);

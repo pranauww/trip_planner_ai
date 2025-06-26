@@ -53,6 +53,7 @@ Respond naturally to the user's message and include relevant recommendations whe
         { role: 'user', content: userMessage }
       ];
 
+      console.log('Sending request to OpenAI...');
       const completion = await openai.chat.completions.create({
         model: 'gpt-4',
         messages: messages as any,
@@ -61,12 +62,17 @@ Respond naturally to the user's message and include relevant recommendations whe
       });
 
       const response = completion.choices[0]?.message?.content || 'I apologize, but I couldn\'t generate a response at the moment.';
+      console.log('OpenAI response received:', response.substring(0, 300) + '...');
 
       // Try to extract recommendations from the response
       const recommendations = this.extractRecommendations(response);
+      console.log('Extracted recommendations:', recommendations);
+
+      // Clean the response text by removing JSON objects
+      const cleanedResponse = this.cleanResponseText(response);
 
       return {
-        message: response,
+        message: cleanedResponse,
         recommendations: recommendations.length > 0 ? recommendations : undefined
       };
 
@@ -143,50 +149,48 @@ IMPORTANT:
     
     console.log('Extracting recommendations from response:', response.substring(0, 200) + '...');
     
-    // Look for JSON wrapped in markdown code blocks (```json ... ```)
-    const codeBlockMatches = response.match(/```json\s*([\s\S]*?)\s*```/g);
+    // First, try to find JSON objects using a more flexible approach
+    // Look for patterns like { "type": "hotel", ... }
+    const jsonMatches = response.match(/\{\s*"type"\s*:\s*"[^"]+"[^}]*\}/g);
     
-    if (codeBlockMatches) {
-      console.log('Found code block matches:', codeBlockMatches.length);
-      codeBlockMatches.forEach((match, index) => {
+    if (jsonMatches) {
+      console.log('Found JSON matches:', jsonMatches.length);
+      jsonMatches.forEach((match, index) => {
         try {
-          // Extract the JSON content from the code block
-          const jsonMatch = match.match(/```json\s*([\s\S]*?)\s*```/);
-          if (jsonMatch && jsonMatch[1]) {
-            console.log(`Parsing code block ${index + 1}:`, jsonMatch[1]);
-            const parsed = JSON.parse(jsonMatch[1]);
-            if (parsed.type && parsed.name && parsed.description) {
-              recommendations.push({
-                type: parsed.type,
-                name: parsed.name,
-                description: parsed.description,
-                location: parsed.location || 'Location not specified',
-                cost: parsed.cost || Math.floor(Math.random() * 200) + 50,
-                rating: parsed.rating || (Math.random() * 2 + 3).toFixed(1),
-                image: parsed.image || this.getDefaultImage(parsed.type),
-                bookingUrl: parsed.bookingUrl || '#'
-              });
-            }
+          console.log(`Attempting to parse JSON ${index + 1}:`, match);
+          const parsed = JSON.parse(match);
+          
+          // Validate that we have the required fields
+          if (parsed.type && parsed.name && parsed.description) {
+            console.log(`Successfully parsed recommendation ${index + 1}:`, parsed.name);
+            recommendations.push({
+              type: parsed.type,
+              name: parsed.name,
+              description: parsed.description,
+              location: parsed.location || 'Location not specified',
+              cost: parsed.cost || Math.floor(Math.random() * 200) + 50,
+              rating: parsed.rating || (Math.random() * 2 + 3).toFixed(1),
+              image: parsed.image || this.getDefaultImage(parsed.type),
+              bookingUrl: parsed.bookingUrl || '#'
+            });
+          } else {
+            console.log(`JSON ${index + 1} missing required fields:`, parsed);
           }
         } catch (e) {
-          console.log('Failed to parse JSON from code block:', e);
+          console.log(`Failed to parse JSON ${index + 1}:`, e);
+          console.log('Problematic JSON string:', match);
         }
       });
-    }
-    
-    // Look for standalone JSON objects embedded in text
-    if (recommendations.length === 0) {
-      console.log('No code blocks found, looking for embedded JSON...');
+    } else {
+      console.log('No JSON matches found with primary pattern');
       
-      // More comprehensive regex to find JSON objects with all required fields
-      const jsonPattern = /\{\s*"type"\s*:\s*"[^"]+"\s*,\s*"name"\s*:\s*"[^"]+"\s*,\s*"description"\s*:\s*"[^"]+"[^}]*\}/g;
-      const jsonMatches = response.match(jsonPattern);
-      
-      if (jsonMatches) {
-        console.log('Found embedded JSON matches:', jsonMatches.length);
-        jsonMatches.forEach((match, index) => {
+      // Fallback: try to find any JSON-like structure
+      const fallbackMatches = response.match(/\{[^}]*"type"[^}]*\}/g);
+      if (fallbackMatches) {
+        console.log('Found fallback JSON matches:', fallbackMatches.length);
+        fallbackMatches.forEach((match, index) => {
           try {
-            console.log(`Parsing embedded JSON ${index + 1}:`, match);
+            console.log(`Attempting to parse fallback JSON ${index + 1}:`, match);
             const parsed = JSON.parse(match);
             if (parsed.type && parsed.name && parsed.description) {
               recommendations.push({
@@ -201,39 +205,9 @@ IMPORTANT:
               });
             }
           } catch (e) {
-            console.log('Failed to parse embedded JSON:', e);
+            console.log(`Failed to parse fallback JSON ${index + 1}:`, e);
           }
         });
-      }
-      
-      // Fallback: simpler regex for basic JSON objects
-      if (recommendations.length === 0) {
-        console.log('No embedded JSON found, trying simple pattern...');
-        const simpleMatches = response.match(/\{[^{}]*"type"[^{}]*\}/g);
-        
-        if (simpleMatches) {
-          console.log('Found simple JSON matches:', simpleMatches.length);
-          simpleMatches.forEach((match, index) => {
-            try {
-              console.log(`Parsing simple JSON ${index + 1}:`, match);
-              const parsed = JSON.parse(match);
-              if (parsed.type && parsed.name && parsed.description) {
-                recommendations.push({
-                  type: parsed.type,
-                  name: parsed.name,
-                  description: parsed.description,
-                  location: parsed.location || 'Location not specified',
-                  cost: parsed.cost || Math.floor(Math.random() * 200) + 50,
-                  rating: parsed.rating || (Math.random() * 2 + 3).toFixed(1),
-                  image: parsed.image || this.getDefaultImage(parsed.type),
-                  bookingUrl: parsed.bookingUrl || '#'
-                });
-              }
-            } catch (e) {
-              console.log('Failed to parse simple JSON:', e);
-            }
-          });
-        }
       }
     }
 
@@ -254,11 +228,37 @@ IMPORTANT:
 
   // Test function to verify parsing works
   static testParsing() {
-    const testResponse = `Absolutely. There are a number of scenic spots along the way from Davis to San Francisco. Here are a few: 1. The Suisun Valley in Fairfield is an underrated gem. It's a great place for photography and appreciating nature. You can stop at one of the vineyards for a wine tasting or simply enjoy the beautiful landscapes. { "type": "activity", "name": "Suisun Valley", "description": "Scenic vineyards and rolling hills, perfect for a picnic stop or wine tasting.", "location": "Suisun Valley, Fairfield, CA", "cost": 0, "rating": 4.5, "image": "https://images.unsplash.com/photo-1504610926078-a1611febcad3", "bookingUrl": "https://www.visitfairfieldca.com/directory/suisun-valley/" } 2. The Muir Woods National Monument is a bit off your route, but it's worth the detour if you have time. The towering redwoods are a sight to behold. { "type": "activity", "name": "Muir Woods National Monument", "description": "An iconic forest of towering redwoods. Walking trails suitable for all ages.", "location": "1 Muir Woods Rd, Mill Valley, CA 94941", "cost": 15, "rating": 4.7, "image": "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40", "bookingUrl": "https://www.nps.gov/muwo/index.htm" } 3. Lastly, Point Reyes National Seashore offers stunning views of the Pacific Ocean and has beautiful trails for hiking. { "type": "activity", "name": "Point Reyes National Seashore", "description": "A vast expanse of protected coastline in Marin County. Beaches, cliffs, and wildlife.", "location": "Point Reyes Station, CA 94956", "cost": 0, "rating": 4.8, "image": "https://images.unsplash.com/photo-1534081333815-ae5019106622", "bookingUrl": "https://www.nps.gov/pore/index.htm" } Please note that the cost mentioned is per person. Let me know if you want more information on other aspects of your trip.`;
+    const testResponse = `Of course, I have found a couple of budget-friendly hotels in San Francisco that might be to your liking. The first one is { "type": "hotel", "name": "The Mosser", "description": "An historic hotel centrally located in downtown San Francisco, near the Powell Street Cable Cars and Powell BART station.", "location": "54 4th St, San Francisco, CA 94103, United States", "cost": 90, "rating": 3.9, "image": "https://images.unsplash.com/photo-1501117716987-c8c394bb29aa", "bookingUrl": "https://www.booking.com/hotel/us/the-mosser.html" } Another good option is { "type": "hotel", "name": "Adelaide Hostel", "description": "Quaint hostel in a Victorian townhouse offering dorms & private rooms, plus free breakfast & Wi-Fi.", "location": "5 Isadora Duncan Ln, San Francisco, CA 94102, United States", "cost": 60, "rating": 4.1, "image": "https://images.unsplash.com/photo-1561409037-1418489f0b65", "bookingUrl": "https://www.booking.com/hotel/us/adelaide-hostel.html" } These are great options for a budget stay, leaving you with enough to explore and enjoy the city.`;
     
     console.log('Testing parsing with sample response...');
+    console.log('Response length:', testResponse.length);
+    console.log('Response preview:', testResponse.substring(0, 200) + '...');
+    
     const results = this.extractRecommendations(testResponse);
     console.log('Test results:', results);
+    
+    // Test text cleaning
+    const cleanedText = this.cleanResponseText(testResponse);
+    console.log('Cleaned text:', cleanedText);
+    
     return results;
+  }
+
+  private static cleanResponseText(response: string): string {
+    // Remove JSON objects from the response text to make it readable
+    // This regex matches JSON objects that start with { and contain "type"
+    const cleanedText = response.replace(/\{\s*"type"\s*:\s*"[^"]+"[^}]*\}/g, '');
+    
+    // Clean up any extra whitespace and punctuation that might be left
+    const finalText = cleanedText
+      .replace(/\s+/g, ' ') // Replace multiple spaces with single space
+      .replace(/\s*,\s*/g, ', ') // Clean up commas
+      .replace(/\s*\.\s*/g, '. ') // Clean up periods
+      .replace(/\s*!\s*/g, '! ') // Clean up exclamation marks
+      .replace(/\s*\?\s*/g, '? ') // Clean up question marks
+      .trim();
+    
+    console.log('Cleaned response text:', finalText);
+    return finalText;
   }
 } 

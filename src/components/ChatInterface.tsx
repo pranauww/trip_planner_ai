@@ -35,9 +35,9 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
     scrollToBottom();
   }, [messages]);
 
-  // Test parsing on component mount
+  // Temporary test to verify parsing works
   useEffect(() => {
-    console.log('Testing AI parsing...');
+    console.log('Testing AI parsing on mount...');
     AIService.testParsing();
   }, []);
 
@@ -71,6 +71,8 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
       // Set recommendations if any
       if (aiResponse.recommendations && aiResponse.recommendations.length > 0) {
         setCurrentRecommendations(aiResponse.recommendations);
+      } else {
+        setCurrentRecommendations([]); // Clear previous recommendations
       }
       
     } catch (error) {
