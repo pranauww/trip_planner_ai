@@ -1,7 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Send, Bot, User, Sparkles, MapPin, Calendar, DollarSign } from 'lucide-react';
-import { TripData, ChatMessage } from '../App';
+import { Send, Bot, User, Sparkles, MapPin, Calendar, DollarSign, Star, ExternalLink } from 'lucide-react';
+import { TripData, ChatMessage, TravelRecommendation } from '../types';
+import { AIService } from '../services/aiService';
+import toast from 'react-hot-toast';
 
 interface ChatInterfaceProps {
   tripData: TripData;
@@ -22,6 +24,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
 }) => {
   const [inputMessage, setInputMessage] = useState('');
   const [isTyping, setIsTyping] = useState(false);
+  const [currentRecommendations, setCurrentRecommendations] = useState<TravelRecommendation[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -31,6 +34,12 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
+  // Test parsing on component mount
+  useEffect(() => {
+    console.log('Testing AI parsing...');
+    AIService.testParsing();
+  }, []);
 
   const handleSendMessage = async () => {
     if (!inputMessage.trim() || isTyping) return;
@@ -46,30 +55,38 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
     setInputMessage('');
     setIsTyping(true);
 
-    // Simulate AI response
-    setTimeout(() => {
-      const aiResponse = generateAIResponse(inputMessage, tripData);
+    try {
+      // Call the real AI service
+      const aiResponse = await AIService.generateResponse(inputMessage, tripData, messages);
+      
       const aiMessage: ChatMessage = {
         id: (Date.now() + 1).toString(),
         type: 'ai',
-        content: aiResponse,
+        content: aiResponse.message,
         timestamp: new Date()
       };
+      
       setMessages(prev => [...prev, aiMessage]);
+      
+      // Set recommendations if any
+      if (aiResponse.recommendations && aiResponse.recommendations.length > 0) {
+        setCurrentRecommendations(aiResponse.recommendations);
+      }
+      
+    } catch (error) {
+      console.error('Error getting AI response:', error);
+      toast.error('Failed to get AI response. Please try again.');
+      
+      const errorMessage: ChatMessage = {
+        id: (Date.now() + 1).toString(),
+        type: 'ai',
+        content: 'I apologize, but I\'m having trouble processing your request right now. Please try again in a moment.',
+        timestamp: new Date()
+      };
+      setMessages(prev => [...prev, errorMessage]);
+    } finally {
       setIsTyping(false);
-    }, 1500);
-  };
-
-  const generateAIResponse = (userInput: string, trip: TripData): string => {
-    const responses = [
-      `Based on your ${trip.tripType} from ${trip.fromLocation} to ${trip.toLocation}, I'd recommend starting with some amazing local experiences. What specific activities interest you most?`,
-      `Great question! For your ${trip.people}-person trip with a $${trip.budget} budget, I can suggest some fantastic options. Would you prefer luxury accommodations or more budget-friendly options?`,
-      `I love that you're interested in ${userInput.toLowerCase()}! Given your preferences for ${trip.preferences.join(', ')}, I think you'll enjoy some hidden gems I know about. Should we focus on the cultural aspects or outdoor adventures?`,
-      `Perfect! I'm crafting a personalized itinerary that balances your interests with the best of ${trip.toLocation}. Are you looking for a packed schedule or a more relaxed pace?`,
-      `Excellent choice! I'm finding the perfect blend of popular attractions and local secrets for your trip. Do you have any dietary restrictions or accessibility needs I should consider?`
-    ];
-    
-    return responses[Math.floor(Math.random() * responses.length)];
+    }
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -87,6 +104,55 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
     "Show me scenic routes",
     "What's the local culture like?"
   ];
+
+  const RecommendationCard: React.FC<{ recommendation: TravelRecommendation }> = ({ recommendation }) => (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100"
+    >
+      <div className="flex">
+        <div className="w-24 h-24 flex-shrink-0">
+          <img
+            src={recommendation.image}
+            alt={recommendation.name}
+            className="w-full h-full object-cover"
+            onError={(e) => {
+              const target = e.target as HTMLImageElement;
+              target.src = 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=400';
+            }}
+          />
+        </div>
+        <div className="flex-1 p-3">
+          <div className="flex items-start justify-between mb-1">
+            <h4 className="font-semibold text-gray-900 text-sm">{recommendation.name}</h4>
+            <div className="flex items-center space-x-1">
+              <Star className="w-3 h-3 text-yellow-400 fill-current" />
+              <span className="text-xs text-gray-600">{recommendation.rating}</span>
+            </div>
+          </div>
+          <p className="text-xs text-gray-600 mb-2">{recommendation.description}</p>
+          <div className="flex items-center justify-between">
+            <span className="text-xs text-gray-500">{recommendation.location}</span>
+            {recommendation.cost && (
+              <span className="text-xs font-medium text-green-600">${recommendation.cost}</span>
+            )}
+          </div>
+          {recommendation.bookingUrl && recommendation.bookingUrl !== '#' && (
+            <a
+              href={recommendation.bookingUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center space-x-1 text-xs text-blue-600 hover:text-blue-800 mt-2"
+            >
+              <span>Book Now</span>
+              <ExternalLink className="w-3 h-3" />
+            </a>
+          )}
+        </div>
+      </div>
+    </motion.div>
+  );
 
   return (
     <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
@@ -182,6 +248,22 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
                   <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
                 </div>
               </div>
+            </div>
+          </motion.div>
+        )}
+
+        {/* AI Recommendations */}
+        {currentRecommendations.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="space-y-3"
+          >
+            <h4 className="text-sm font-medium text-gray-700">AI Recommendations:</h4>
+            <div className="space-y-2">
+              {currentRecommendations.map((rec, index) => (
+                <RecommendationCard key={index} recommendation={rec} />
+              ))}
             </div>
           </motion.div>
         )}

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { 
   MapPin, 
@@ -10,36 +10,74 @@ import {
   Heart,
   Navigation
 } from 'lucide-react';
-import { TripData, ChatMessage } from '../App';
+import { TripData, ChatMessage, ItineraryItem } from '../types';
+import { AIService } from '../services/aiService';
 import InteractiveMap from './InteractiveMap';
 import GlobeView from './GlobeView';
 import ItineraryCard from './ItineraryCard';
+import toast from 'react-hot-toast';
 
 interface VisualOutputProps {
   tripData: TripData;
   chatMessages: ChatMessage[];
 }
 
-interface ItineraryItem {
-  id: string;
-  day: number;
-  time: string;
-  activity: string;
-  location: string;
-  description: string;
-  type: 'flight' | 'hotel' | 'activity' | 'food' | 'transport';
-  cost: number;
-  rating: number;
-  image: string;
-}
-
 const VisualOutput: React.FC<VisualOutputProps> = ({ tripData, chatMessages }) => {
   const [activeTab, setActiveTab] = useState<'map' | 'globe' | 'itinerary'>('map');
   const [selectedDay, setSelectedDay] = useState(1);
   const [isFavorite, setIsFavorite] = useState(false);
+  const [itinerary, setItinerary] = useState<ItineraryItem[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [aiInsights, setAiInsights] = useState<string>('');
 
-  // Mock itinerary data
-  const itinerary: ItineraryItem[] = [
+  useEffect(() => {
+    generateAIItinerary();
+  }, []);
+
+  const generateAIItinerary = async () => {
+    setIsLoading(true);
+    try {
+      const aiResponse = await AIService.generateItinerary(tripData, chatMessages);
+      
+      if (aiResponse.recommendations && aiResponse.recommendations.length > 0) {
+        // Convert AI recommendations to itinerary items
+        const itineraryItems: ItineraryItem[] = aiResponse.recommendations.map((rec, index) => ({
+          id: (index + 1).toString(),
+          day: Math.floor(index / 4) + 1, // Distribute across days
+          time: getTimeForIndex(index),
+          activity: rec.name,
+          location: rec.location,
+          description: rec.description,
+          type: rec.type,
+          cost: rec.cost || Math.floor(Math.random() * 200) + 50,
+          rating: typeof rec.rating === 'string' ? parseFloat(rec.rating) : (rec.rating || 4.0),
+          image: rec.image || 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=400'
+        }));
+        
+        setItinerary(itineraryItems);
+      } else {
+        // Fallback to mock data if no AI recommendations
+        setItinerary(getMockItinerary());
+      }
+      
+      setAiInsights(aiResponse.message);
+      
+    } catch (error) {
+      console.error('Error generating AI itinerary:', error);
+      toast.error('Failed to generate AI itinerary. Using default recommendations.');
+      setItinerary(getMockItinerary());
+      setAiInsights('I\'ve prepared a great itinerary for your trip! Here are some highlights and recommendations based on your preferences.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const getTimeForIndex = (index: number): string => {
+    const times = ['09:00', '12:00', '14:00', '19:00'];
+    return times[index % times.length];
+  };
+
+  const getMockItinerary = (): ItineraryItem[] => [
     {
       id: '1',
       day: 1,
@@ -83,7 +121,7 @@ const VisualOutput: React.FC<VisualOutputProps> = ({ tripData, chatMessages }) =
       activity: 'Local Restaurant',
       location: 'Seaside Bistro',
       description: 'Authentic local cuisine with ocean views',
-      type: 'food',
+      type: 'restaurant',
       cost: 35,
       rating: 4.7,
       image: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=400'
@@ -91,7 +129,18 @@ const VisualOutput: React.FC<VisualOutputProps> = ({ tripData, chatMessages }) =
   ];
 
   const totalCost = itinerary.reduce((sum, item) => sum + item.cost, 0);
-  const days = Math.max(...itinerary.map(item => item.day));
+  const days = Math.max(...itinerary.map(item => item.day), 1);
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-96">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Generating your AI-powered itinerary...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -235,7 +284,7 @@ const VisualOutput: React.FC<VisualOutputProps> = ({ tripData, chatMessages }) =
         {activeTab === 'itinerary' && (
           <div className="p-6">
             <div className="flex items-center justify-between mb-6">
-              <h3 className="text-xl font-semibold text-gray-900">Your Itinerary</h3>
+              <h3 className="text-xl font-semibold text-gray-900">Your AI-Generated Itinerary</h3>
               <div className="flex space-x-2">
                 {Array.from({ length: days }, (_, i) => i + 1).map((day) => (
                   <button
@@ -273,10 +322,9 @@ const VisualOutput: React.FC<VisualOutputProps> = ({ tripData, chatMessages }) =
         <h3 className="text-xl font-semibold text-gray-900 mb-4">AI Travel Insights</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <h4 className="font-medium text-gray-900 mb-2">Weather Forecast</h4>
+            <h4 className="font-medium text-gray-900 mb-2">AI Recommendations</h4>
             <p className="text-gray-600 text-sm">
-              Expect sunny weather with temperatures between 22-28°C during your stay. 
-              Perfect conditions for outdoor activities and sightseeing.
+              {aiInsights || 'Based on your preferences and trip details, I\'ve curated a personalized itinerary that balances your interests with the best experiences available.'}
             </p>
           </div>
           <div>

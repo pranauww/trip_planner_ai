@@ -15,6 +15,7 @@ An AI-powered travel planning application with a visual-first interface that tra
 - **Context-Aware Responses**: AI remembers trip details and preferences
 - **Quick Suggestions**: Pre-built prompts for common travel questions
 - **Real-time Typing Indicators**: Visual feedback during AI processing
+- **AI-Generated Recommendations**: Real hotel, restaurant, and activity suggestions
 
 ### 🗺️ **Visual Output Components**
 - **Interactive Maps**: Route visualization with location markers
@@ -33,6 +34,7 @@ An AI-powered travel planning application with a visual-first interface that tra
 ### Prerequisites
 - Node.js (v16 or higher)
 - npm or yarn
+- OpenAI API key
 
 ### Installation
 
@@ -47,13 +49,39 @@ An AI-powered travel planning application with a visual-first interface that tra
    npm install
    ```
 
-3. **Start the development server**
+3. **Set up environment variables**
+   Create a `.env` file in the root directory:
+   ```env
+   # Required: OpenAI API Configuration
+   # Get your API key from: https://platform.openai.com/api-keys
+   REACT_APP_OPENAI_API_KEY=your_openai_api_key_here
+   
+   # Optional: Mapbox API for enhanced map features
+   # Get your token from: https://account.mapbox.com/access-tokens/
+   REACT_APP_MAPBOX_TOKEN=your_mapbox_token_here
+   ```
+
+4. **Start the development server**
    ```bash
    npm start
    ```
 
-4. **Open your browser**
+5. **Open your browser**
    Navigate to `http://localhost:3000`
+
+## 🔧 API Setup
+
+### OpenAI API (Required)
+1. Go to [OpenAI Platform](https://platform.openai.com/api-keys)
+2. Create an account or sign in
+3. Generate a new API key
+4. Add it to your `.env` file as `REACT_APP_OPENAI_API_KEY`
+
+### Mapbox API (Optional)
+1. Go to [Mapbox](https://account.mapbox.com/access-tokens/)
+2. Create an account or sign in
+3. Generate a new access token
+4. Add it to your `.env` file as `REACT_APP_MAPBOX_TOKEN`
 
 ## 🛠️ Tech Stack
 
@@ -65,13 +93,12 @@ An AI-powered travel planning application with a visual-first interface that tra
 - **React Hook Form** - Form handling and validation
 - **Lucide React** - Beautiful icon library
 
-### Maps & Visualization
+### AI & APIs
+- **OpenAI GPT-4** - AI-powered travel recommendations and chat
 - **Mapbox GL JS** - Interactive maps (ready for integration)
 - **Three.js** - 3D globe visualization (ready for integration)
-- **React Three Fiber** - React renderer for Three.js
 
 ### UI Components
-- **Headless UI** - Accessible UI components
 - **React Hot Toast** - Toast notifications
 - **Date-fns** - Date manipulation utilities
 
@@ -90,11 +117,12 @@ An AI-powered travel planning application with a visual-first interface that tra
 - Ask about specific activities, restaurants, or attractions
 - Get personalized recommendations based on your preferences
 - Use quick suggestion buttons for common questions
+- View AI-generated recommendation cards with ratings and booking links
 
 ### 3. **Visual Itinerary**
 - View your trip on an interactive map
 - Explore the 3D globe view of your route
-- Browse day-by-day itinerary with detailed information
+- Browse AI-generated day-by-day itinerary with detailed information
 - See AI-generated insights about weather and local tips
 
 ## 🎯 Key Differentiators from Mindtrip AI
@@ -121,19 +149,25 @@ An AI-powered travel planning application with a visual-first interface that tra
 - Easy navigation between different views
 - Mobile-responsive design
 
+### **Real AI Integration**
+- Uses OpenAI GPT-4 for intelligent responses
+- Generates personalized recommendations
+- Provides realistic costs and ratings
+- Creates detailed itineraries based on preferences
+
 ## 🔧 Configuration
 
 ### Environment Variables
 Create a `.env` file in the root directory:
 
 ```env
-REACT_APP_MAPBOX_TOKEN=your_mapbox_token_here
 REACT_APP_OPENAI_API_KEY=your_openai_api_key_here
+REACT_APP_MAPBOX_TOKEN=your_mapbox_token_here
 ```
 
 ### API Integration
 The app is designed to integrate with:
-- **OpenAI API** - For AI chat functionality
+- **OpenAI API** - For AI chat functionality and recommendations
 - **Mapbox API** - For interactive maps
 - **Travel APIs** - For real flight/hotel data
 
@@ -144,11 +178,13 @@ src/
 ├── components/
 │   ├── Header.tsx              # App header with navigation
 │   ├── TripForm.tsx            # Main trip planning form
-│   ├── ChatInterface.tsx       # AI chat interface
+│   ├── ChatInterface.tsx       # AI chat interface with recommendations
 │   ├── VisualOutput.tsx        # Main visual output container
 │   ├── InteractiveMap.tsx      # Map visualization component
 │   ├── GlobeView.tsx           # 3D globe component
 │   └── ItineraryCard.tsx       # Individual itinerary item card
+├── services/
+│   └── aiService.ts            # OpenAI API integration
 ├── App.tsx                     # Main application component
 ├── index.tsx                   # Application entry point
 └── index.css                   # Global styles and Tailwind imports
@@ -165,6 +201,7 @@ src/
 - Add new trip types in `TripForm.tsx`
 - Extend AI responses in `ChatInterface.tsx`
 - Enhance visual components with real API data
+- Modify AI prompts in `aiService.ts`
 
 ## 🚀 Deployment
 
@@ -202,6 +239,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - Inspired by Mindtrip AI's innovative approach to travel planning
 - Built with modern React and TypeScript best practices
 - Uses beautiful UI libraries and tools from the open-source community
+- Powered by OpenAI's GPT-4 for intelligent travel recommendations
 
 ---
 

@@ -1,19 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { MapPin, Navigation, Info } from 'lucide-react';
-
-interface ItineraryItem {
-  id: string;
-  day: number;
-  time: string;
-  activity: string;
-  location: string;
-  description: string;
-  type: 'flight' | 'hotel' | 'activity' | 'food' | 'transport';
-  cost: number;
-  rating: number;
-  image: string;
-}
+import { ItineraryItem } from '../types';
 
 interface InteractiveMapProps {
   fromLocation: string;
