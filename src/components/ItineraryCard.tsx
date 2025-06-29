@@ -39,18 +39,18 @@ const ItineraryCard: React.FC<ItineraryCardProps> = ({ item }) => {
   const getTypeColor = (type: string) => {
     switch (type) {
       case 'flight':
-        return 'bg-blue-100 text-blue-600';
+        return 'bg-blue-600 text-white';
       case 'hotel':
-        return 'bg-green-100 text-green-600';
+        return 'bg-green-600 text-white';
       case 'food':
       case 'restaurant':
-        return 'bg-orange-100 text-orange-600';
+        return 'bg-orange-600 text-white';
       case 'activity':
-        return 'bg-purple-100 text-purple-600';
+        return 'bg-purple-600 text-white';
       case 'transport':
-        return 'bg-gray-100 text-gray-600';
+        return 'bg-gray-600 text-white';
       default:
-        return 'bg-gray-100 text-gray-600';
+        return 'bg-gray-600 text-white';
     }
   };
 
@@ -61,7 +61,7 @@ const ItineraryCard: React.FC<ItineraryCardProps> = ({ item }) => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       whileHover={{ scale: 1.02 }}
-      className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100"
+      className="bg-gray-800 rounded-lg shadow-lg overflow-hidden border border-gray-700"
     >
       <div className="flex">
         {/* Image */}
@@ -85,8 +85,8 @@ const ItineraryCard: React.FC<ItineraryCardProps> = ({ item }) => {
                 <TypeIcon className="w-4 h-4" />
               </div>
               <div>
-                <h3 className="font-semibold text-gray-900">{item.activity}</h3>
-                <div className="flex items-center space-x-4 text-sm text-gray-600">
+                <h3 className="font-semibold text-white">{item.activity}</h3>
+                <div className="flex items-center space-x-4 text-sm text-gray-400">
                   <div className="flex items-center space-x-1">
                     <Clock className="w-3 h-3" />
                     <span>{item.time}</span>
@@ -101,16 +101,16 @@ const ItineraryCard: React.FC<ItineraryCardProps> = ({ item }) => {
             <div className="text-right">
               <div className="flex items-center space-x-1 mb-1">
                 <Star className="w-4 h-4 text-yellow-400 fill-current" />
-                <span className="text-sm font-medium text-gray-900">{item.rating}</span>
+                <span className="text-sm font-medium text-white">{item.rating}</span>
               </div>
-              <div className="flex items-center space-x-1 text-sm text-gray-600">
+              <div className="flex items-center space-x-1 text-sm text-gray-400">
                 <DollarSign className="w-3 h-3" />
                 <span>${item.cost}</span>
               </div>
             </div>
           </div>
 
-          <p className="text-sm text-gray-600 mb-3">{item.description}</p>
+          <p className="text-sm text-gray-300 mb-3">{item.description}</p>
 
           {/* Action Buttons */}
           <div className="flex items-center space-x-2">
@@ -124,14 +124,14 @@ const ItineraryCard: React.FC<ItineraryCardProps> = ({ item }) => {
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="px-3 py-1 bg-gray-100 text-gray-700 text-xs rounded-lg hover:bg-gray-200 transition-colors"
+              className="px-3 py-1 bg-gray-700 text-gray-300 text-xs rounded-lg hover:bg-gray-600 transition-colors"
             >
               Book Now
             </motion.button>
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="px-3 py-1 bg-gray-100 text-gray-700 text-xs rounded-lg hover:bg-gray-200 transition-colors"
+              className="px-3 py-1 bg-gray-700 text-gray-300 text-xs rounded-lg hover:bg-gray-600 transition-colors"
             >
               Save
             </motion.button>
@@ -140,7 +140,7 @@ const ItineraryCard: React.FC<ItineraryCardProps> = ({ item }) => {
       </div>
 
       {/* Progress Bar */}
-      <div className="h-1 bg-gray-200">
+      <div className="h-1 bg-gray-700">
         <motion.div
           initial={{ width: 0 }}
           animate={{ width: '100%' }}

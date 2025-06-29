@@ -111,7 +111,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100"
+      className="bg-gray-800 rounded-lg shadow-lg overflow-hidden border border-gray-700"
     >
       <div className="flex">
         <div className="w-24 h-24 flex-shrink-0">
@@ -127,17 +127,17 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
         </div>
         <div className="flex-1 p-3">
           <div className="flex items-start justify-between mb-1">
-            <h4 className="font-semibold text-gray-900 text-sm">{recommendation.name}</h4>
+            <h4 className="font-semibold text-white text-sm">{recommendation.name}</h4>
             <div className="flex items-center space-x-1">
               <Star className="w-3 h-3 text-yellow-400 fill-current" />
-              <span className="text-xs text-gray-600">{recommendation.rating}</span>
+              <span className="text-xs text-gray-400">{recommendation.rating}</span>
             </div>
           </div>
-          <p className="text-xs text-gray-600 mb-2">{recommendation.description}</p>
+          <p className="text-xs text-gray-300 mb-2">{recommendation.description}</p>
           <div className="flex items-center justify-between">
-            <span className="text-xs text-gray-500">{recommendation.location}</span>
+            <span className="text-xs text-gray-400">{recommendation.location}</span>
             {recommendation.cost && (
-              <span className="text-xs font-medium text-green-600">${recommendation.cost}</span>
+              <span className="text-xs font-medium text-green-400">${recommendation.cost}</span>
             )}
           </div>
           {recommendation.bookingUrl && recommendation.bookingUrl !== '#' && (
@@ -145,7 +145,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
               href={recommendation.bookingUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center space-x-1 text-xs text-blue-600 hover:text-blue-800 mt-2"
+              className="inline-flex items-center space-x-1 text-xs text-blue-400 hover:text-blue-300 mt-2"
             >
               <span>Book Now</span>
               <ExternalLink className="w-3 h-3" />
@@ -157,43 +157,52 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
   );
 
   return (
-    <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
-      {/* Header */}
-      <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-6">
-        <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
-            <Bot className="w-6 h-6" />
+    <div className="flex flex-col h-full bg-gray-900">
+      {/* Trip Summary */}
+      <div className="bg-gray-800 border-b border-gray-700 p-4">
+        <div className="flex items-center space-x-3 mb-3">
+          <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+            <Bot className="w-5 h-5 text-white" />
           </div>
           <div>
-            <h2 className="text-xl font-semibold">AI Travel Assistant</h2>
-            <p className="text-blue-100 text-sm">
-              Planning your {tripData.tripType} to {tripData.toLocation}
+            <h2 className="text-lg font-semibold text-white">AI Travel Assistant</h2>
+            <p className="text-gray-400 text-sm">
+              {tripData.tripType && `Planning your ${tripData.tripType}`}
+              {tripData.toLocation && ` to ${tripData.toLocation}`}
             </p>
           </div>
         </div>
         
-        {/* Trip Summary */}
-        <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="flex items-center space-x-2 text-sm">
-            <MapPin className="w-4 h-4" />
-            <span>{tripData.fromLocation} → {tripData.toLocation}</span>
-          </div>
-          <div className="flex items-center space-x-2 text-sm">
-            <Calendar className="w-4 h-4" />
-            <span>{tripData.startDate} - {tripData.endDate}</span>
-          </div>
-          <div className="flex items-center space-x-2 text-sm">
-            <DollarSign className="w-4 h-4" />
-            <span>Budget: ${tripData.budget}</span>
-          </div>
-          <div className="flex items-center space-x-2 text-sm">
-            <span>👥 {tripData.people} people</span>
-          </div>
+        {/* Trip Summary Grid */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
+          {tripData.fromLocation && tripData.toLocation && (
+            <div className="flex items-center space-x-2 text-gray-300">
+              <MapPin className="w-3 h-3" />
+              <span>{tripData.fromLocation} → {tripData.toLocation}</span>
+            </div>
+          )}
+          {tripData.startDate && tripData.endDate && (
+            <div className="flex items-center space-x-2 text-gray-300">
+              <Calendar className="w-3 h-3" />
+              <span>{tripData.startDate} - {tripData.endDate}</span>
+            </div>
+          )}
+          {tripData.budget && (
+            <div className="flex items-center space-x-2 text-gray-300">
+              <DollarSign className="w-3 h-3" />
+              <span>${tripData.budget}</span>
+            </div>
+          )}
+          {tripData.people && (
+            <div className="flex items-center space-x-2 text-gray-300">
+              <span>👥 {tripData.people} people</span>
+            </div>
+          )}
         </div>
       </div>
 
       {/* Messages */}
-      <div className="h-96 overflow-y-auto p-6 space-y-4">
+      <div className="flex-1 overflow-y-auto p-4 space-y-4">
         <AnimatePresence>
           {messages.map((message) => (
             <motion.div
@@ -204,20 +213,20 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
               className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}
             >
               <div
-                className={`max-w-xs md:max-w-md lg:max-w-lg px-4 py-3 rounded-2xl ${
+                className={`max-w-xs md:max-w-md lg:max-w-lg px-4 py-3 rounded-lg ${
                   message.type === 'user'
                     ? 'bg-blue-600 text-white'
-                    : 'bg-gray-100 text-gray-800'
+                    : 'bg-gray-800 text-gray-100 border border-gray-700'
                 }`}
               >
                 <div className="flex items-start space-x-2">
                   {message.type === 'ai' && (
-                    <Bot className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
+                    <Bot className="w-4 h-4 text-blue-400 mt-0.5 flex-shrink-0" />
                   )}
-                  <div>
+                  <div className="flex-1">
                     <p className="text-sm leading-relaxed">{message.content}</p>
                     <p className={`text-xs mt-2 ${
-                      message.type === 'user' ? 'text-blue-100' : 'text-gray-500'
+                      message.type === 'user' ? 'text-blue-100' : 'text-gray-400'
                     }`}>
                       {message.timestamp.toLocaleTimeString([], { 
                         hour: '2-digit', 
@@ -226,7 +235,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
                     </p>
                   </div>
                   {message.type === 'user' && (
-                    <User className="w-5 h-5 text-blue-100 mt-0.5 flex-shrink-0" />
+                    <User className="w-4 h-4 text-blue-100 mt-0.5 flex-shrink-0" />
                   )}
                 </div>
               </div>
@@ -241,9 +250,9 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
             animate={{ opacity: 1, y: 0 }}
             className="flex justify-start"
           >
-            <div className="bg-gray-100 text-gray-800 px-4 py-3 rounded-2xl">
+            <div className="bg-gray-800 text-gray-100 px-4 py-3 rounded-lg border border-gray-700">
               <div className="flex items-center space-x-2">
-                <Bot className="w-5 h-5 text-blue-600" />
+                <Bot className="w-4 h-4 text-blue-400" />
                 <div className="flex space-x-1">
                   <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
                   <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
@@ -261,7 +270,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
             animate={{ opacity: 1, y: 0 }}
             className="space-y-3"
           >
-            <h4 className="text-sm font-medium text-gray-700">AI Recommendations:</h4>
+            <h4 className="text-sm font-medium text-gray-300">AI Recommendations:</h4>
             <div className="space-y-2">
               {currentRecommendations.map((rec, index) => (
                 <RecommendationCard key={index} recommendation={rec} />
@@ -275,14 +284,14 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
 
       {/* Quick Suggestions */}
       {messages.length > 1 && (
-        <div className="px-6 pb-4">
-          <p className="text-sm text-gray-600 mb-3">Quick suggestions:</p>
+        <div className="px-4 pb-4">
+          <p className="text-sm text-gray-400 mb-3">Quick suggestions:</p>
           <div className="flex flex-wrap gap-2">
             {quickSuggestions.map((suggestion, index) => (
               <button
                 key={index}
                 onClick={() => setInputMessage(suggestion)}
-                className="px-3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm rounded-full transition-colors"
+                className="px-3 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 text-sm rounded-lg transition-colors border border-gray-700"
               >
                 {suggestion}
               </button>
@@ -292,7 +301,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
       )}
 
       {/* Input */}
-      <div className="border-t border-gray-200 p-6">
+      <div className="border-t border-gray-700 p-4">
         <div className="flex space-x-4">
           <div className="flex-1 relative">
             <textarea
@@ -300,7 +309,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
               onChange={(e) => setInputMessage(e.target.value)}
               onKeyPress={handleKeyPress}
               placeholder="Ask me anything about your trip..."
-              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+              className="w-full px-4 py-3 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none bg-gray-800 text-white placeholder-gray-400"
               rows={1}
               disabled={isTyping}
             />
@@ -310,7 +319,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
             whileTap={{ scale: 0.95 }}
             onClick={handleSendMessage}
             disabled={!inputMessage.trim() || isTyping}
-            className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-3 rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            className="bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <Send className="w-5 h-5" />
           </motion.button>
@@ -319,12 +328,12 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
 
       {/* Complete Button */}
       {messages.length > 3 && (
-        <div className="px-6 pb-6">
+        <div className="px-4 pb-4">
           <motion.button
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             onClick={onComplete}
-            className="w-full bg-gradient-to-r from-green-600 to-emerald-600 text-white py-3 px-6 rounded-xl font-semibold hover:from-green-700 hover:to-emerald-700 transition-all flex items-center justify-center space-x-2"
+            className="w-full bg-green-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-green-700 transition-colors flex items-center justify-center space-x-2"
           >
             <Sparkles className="w-5 h-5" />
             <span>Generate Visual Itinerary</span>

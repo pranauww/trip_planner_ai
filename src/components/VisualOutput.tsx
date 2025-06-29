@@ -154,7 +154,7 @@ const VisualOutput: React.FC<VisualOutputProps> = ({ tripData, chatMessages }) =
       <div className="flex items-center justify-center min-h-96">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Generating your AI-powered itinerary...</p>
+          <p className="text-gray-400">Generating your AI-powered itinerary...</p>
         </div>
       </div>
     );
@@ -166,15 +166,17 @@ const VisualOutput: React.FC<VisualOutputProps> = ({ tripData, chatMessages }) =
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-white rounded-2xl shadow-xl p-6"
+        className="bg-gray-800 rounded-lg shadow-xl p-6 border border-gray-700"
       >
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">
-              Your {tripData.tripType} to {tripData.toLocation}
+            <h1 className="text-3xl font-bold text-white">
+              {tripData.tripType && `Your ${tripData.tripType}`}
+              {tripData.toLocation && ` to ${tripData.toLocation}`}
             </h1>
-            <p className="text-gray-600 mt-1">
-              {tripData.startDate} - {tripData.endDate} • {tripData.people} people
+            <p className="text-gray-400 mt-1">
+              {tripData.startDate && tripData.endDate && `${tripData.startDate} - ${tripData.endDate}`}
+              {tripData.people && ` • ${tripData.people} people`}
             </p>
           </div>
           <div className="flex items-center space-x-3">
@@ -182,10 +184,10 @@ const VisualOutput: React.FC<VisualOutputProps> = ({ tripData, chatMessages }) =
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => setIsFavorite(!isFavorite)}
-              className={`p-3 rounded-xl transition-colors ${
+              className={`p-3 rounded-lg transition-colors ${
                 isFavorite 
-                  ? 'bg-red-100 text-red-600' 
-                  : 'bg-gray-100 text-gray-600 hover:bg-red-100 hover:text-red-600'
+                  ? 'bg-red-600 text-white' 
+                  : 'bg-gray-700 text-gray-400 hover:bg-red-600 hover:text-white'
               }`}
             >
               <Heart className={`w-5 h-5 ${isFavorite ? 'fill-current' : ''}`} />
@@ -193,14 +195,14 @@ const VisualOutput: React.FC<VisualOutputProps> = ({ tripData, chatMessages }) =
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="p-3 bg-gray-100 text-gray-600 rounded-xl hover:bg-blue-100 hover:text-blue-600 transition-colors"
+              className="p-3 bg-gray-700 text-gray-400 rounded-lg hover:bg-blue-600 hover:text-white transition-colors"
             >
               <Share2 className="w-5 h-5" />
             </motion.button>
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="p-3 bg-gray-100 text-gray-600 rounded-xl hover:bg-green-100 hover:text-green-600 transition-colors"
+              className="p-3 bg-gray-700 text-gray-400 rounded-lg hover:bg-green-600 hover:text-white transition-colors"
             >
               <Download className="w-5 h-5" />
             </motion.button>
@@ -209,47 +211,47 @@ const VisualOutput: React.FC<VisualOutputProps> = ({ tripData, chatMessages }) =
 
         {/* Trip Summary Cards */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="bg-blue-50 p-4 rounded-xl">
+          <div className="bg-gray-700 p-4 rounded-lg border border-gray-600">
             <div className="flex items-center space-x-2">
-              <MapPin className="w-5 h-5 text-blue-600" />
-              <span className="text-sm font-medium text-blue-900">Route</span>
+              <MapPin className="w-5 h-5 text-blue-400" />
+              <span className="text-sm font-medium text-gray-300">Route</span>
             </div>
-            <p className="text-lg font-semibold text-blue-900 mt-1">
-              {tripData.fromLocation} → {tripData.toLocation}
+            <p className="text-lg font-semibold text-white mt-1">
+              {tripData.fromLocation && tripData.toLocation ? `${tripData.fromLocation} → ${tripData.toLocation}` : 'TBD'}
             </p>
           </div>
-          <div className="bg-green-50 p-4 rounded-xl">
+          <div className="bg-gray-700 p-4 rounded-lg border border-gray-600">
             <div className="flex items-center space-x-2">
-              <Calendar className="w-5 h-5 text-green-600" />
-              <span className="text-sm font-medium text-green-900">Duration</span>
+              <Calendar className="w-5 h-5 text-green-400" />
+              <span className="text-sm font-medium text-gray-300">Duration</span>
             </div>
-            <p className="text-lg font-semibold text-green-900 mt-1">
+            <p className="text-lg font-semibold text-white mt-1">
               {days} days
             </p>
           </div>
-          <div className="bg-purple-50 p-4 rounded-xl">
+          <div className="bg-gray-700 p-4 rounded-lg border border-gray-600">
             <div className="flex items-center space-x-2">
-              <DollarSign className="w-5 h-5 text-purple-600" />
-              <span className="text-sm font-medium text-purple-900">Total Cost</span>
+              <DollarSign className="w-5 h-5 text-purple-400" />
+              <span className="text-sm font-medium text-gray-300">Total Cost</span>
             </div>
-            <p className="text-lg font-semibold text-purple-900 mt-1">
+            <p className="text-lg font-semibold text-white mt-1">
               ${totalCost}
             </p>
           </div>
-          <div className="bg-orange-50 p-4 rounded-xl">
+          <div className="bg-gray-700 p-4 rounded-lg border border-gray-600">
             <div className="flex items-center space-x-2">
-              <Users className="w-5 h-5 text-orange-600" />
-              <span className="text-sm font-medium text-orange-900">Travelers</span>
+              <Users className="w-5 h-5 text-orange-400" />
+              <span className="text-sm font-medium text-gray-300">Travelers</span>
             </div>
-            <p className="text-lg font-semibold text-orange-900 mt-1">
-              {tripData.people}
+            <p className="text-lg font-semibold text-white mt-1">
+              {tripData.people || 'TBD'}
             </p>
           </div>
         </div>
       </motion.div>
 
       {/* Navigation Tabs */}
-      <div className="bg-white rounded-2xl shadow-xl p-2">
+      <div className="bg-gray-800 rounded-lg shadow-xl p-2 border border-gray-700">
         <div className="flex space-x-2">
           {[
             { id: 'map', label: 'Interactive Map', icon: MapPin },
@@ -259,10 +261,10 @@ const VisualOutput: React.FC<VisualOutputProps> = ({ tripData, chatMessages }) =
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id as any)}
-              className={`flex-1 flex items-center justify-center space-x-2 py-3 px-4 rounded-xl font-medium transition-all ${
+              className={`flex-1 flex items-center justify-center space-x-2 py-3 px-4 rounded-lg font-medium transition-all ${
                 activeTab === tab.id
                   ? 'bg-blue-600 text-white shadow-lg'
-                  : 'text-gray-600 hover:bg-gray-100'
+                  : 'text-gray-400 hover:bg-gray-700'
               }`}
             >
               <tab.icon className="w-5 h-5" />
@@ -278,7 +280,7 @@ const VisualOutput: React.FC<VisualOutputProps> = ({ tripData, chatMessages }) =
         initial={{ opacity: 0, x: 20 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.3 }}
-        className="bg-white rounded-2xl shadow-xl overflow-hidden"
+        className="bg-gray-800 rounded-lg shadow-xl overflow-hidden border border-gray-700"
       >
         {activeTab === 'map' && (
           <div className="h-96">
@@ -302,7 +304,7 @@ const VisualOutput: React.FC<VisualOutputProps> = ({ tripData, chatMessages }) =
         {activeTab === 'itinerary' && (
           <div className="p-6">
             <div className="flex items-center justify-between mb-6">
-              <h3 className="text-xl font-semibold text-gray-900">Your AI-Generated Itinerary</h3>
+              <h3 className="text-xl font-semibold text-white">Your AI-Generated Itinerary</h3>
               <div className="flex space-x-2">
                 {Array.from({ length: days }, (_, i) => i + 1).map((day) => (
                   <button
@@ -311,7 +313,7 @@ const VisualOutput: React.FC<VisualOutputProps> = ({ tripData, chatMessages }) =
                     className={`px-4 py-2 rounded-lg font-medium transition-colors ${
                       selectedDay === day
                         ? 'bg-blue-600 text-white'
-                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                        : 'bg-gray-700 text-gray-400 hover:bg-gray-600'
                     }`}
                   >
                     Day {day}
@@ -335,19 +337,19 @@ const VisualOutput: React.FC<VisualOutputProps> = ({ tripData, chatMessages }) =
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-2xl shadow-xl p-6"
+        className="bg-gray-800 rounded-lg shadow-xl p-6 border border-gray-700"
       >
-        <h3 className="text-xl font-semibold text-gray-900 mb-4">AI Travel Insights</h3>
+        <h3 className="text-xl font-semibold text-white mb-4">AI Travel Insights</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <h4 className="font-medium text-gray-900 mb-2">AI Recommendations</h4>
-            <p className="text-gray-600 text-sm">
+            <h4 className="font-medium text-white mb-2">AI Recommendations</h4>
+            <p className="text-gray-300 text-sm">
               {aiInsights || 'Based on your preferences and trip details, I\'ve curated a personalized itinerary that balances your interests with the best experiences available.'}
             </p>
           </div>
           <div>
-            <h4 className="font-medium text-gray-900 mb-2">Local Tips</h4>
-            <p className="text-gray-600 text-sm">
+            <h4 className="font-medium text-white mb-2">Local Tips</h4>
+            <p className="text-gray-300 text-sm">
               Best time to visit attractions is early morning. Local currency is accepted 
               everywhere, but credit cards are preferred for larger purchases.
             </p>

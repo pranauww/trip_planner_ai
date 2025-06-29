@@ -13,23 +13,35 @@ export class AIService {
     chatHistory: ChatMessage[]
   ): Promise<AIResponse> {
     try {
+      // Build context from available trip data
+      const contextParts = [];
+      if (tripData.tripType) contextParts.push(`Trip type: ${tripData.tripType}`);
+      if (tripData.fromLocation) contextParts.push(`From: ${tripData.fromLocation}`);
+      if (tripData.toLocation) contextParts.push(`To: ${tripData.toLocation}`);
+      if (tripData.startDate && tripData.endDate) contextParts.push(`Dates: ${tripData.startDate} to ${tripData.endDate}`);
+      if (tripData.budget) contextParts.push(`Budget: $${tripData.budget}`);
+      if (tripData.people) contextParts.push(`People: ${tripData.people}`);
+      if (tripData.preferences && tripData.preferences.length > 0) contextParts.push(`Preferences: ${tripData.preferences.join(', ')}`);
+      
+      const tripContext = contextParts.length > 0 ? contextParts.join('\n- ') : 'No specific trip details provided yet';
+
       const systemPrompt = `You are an expert travel planner AI assistant. You help users plan their trips by providing personalized recommendations and creating detailed itineraries.
 
 Current trip context:
-- Trip type: ${tripData.tripType}
-- From: ${tripData.fromLocation}
-- To: ${tripData.toLocation}
-- Dates: ${tripData.startDate} to ${tripData.endDate}
-- Budget: $${tripData.budget}
-- People: ${tripData.people}
-- Preferences: ${tripData.preferences.join(', ')}
+- ${tripContext}
 
 Your responses should be:
 1. Helpful and conversational
 2. Include specific recommendations when asked
 3. Provide realistic costs and ratings
-4. Suggest activities that match the user's preferences
-5. Consider the budget and trip duration
+4. Suggest activities that match the user's preferences (if provided)
+5. Consider the budget and trip duration (if provided)
+
+IMPORTANT: If the user hasn't provided enough information for a specific recommendation, provide a general response and suggest what additional information would be helpful. For example:
+- If no destination is specified, suggest popular destinations and ask where they'd like to go
+- If no budget is mentioned, provide a range of options and ask about their budget
+- If no dates are given, ask about their preferred travel dates
+- If no preferences are listed, ask about their interests
 
 When providing recommendations, embed them naturally in your response as JSON objects. Here's the exact format:
 
@@ -42,7 +54,7 @@ IMPORTANT:
 - Include all required fields: type, name, description, location, cost, rating, image, bookingUrl
 - Use realistic values for cost and rating
 
-Respond naturally to the user's message and include relevant recommendations when appropriate.`;
+At the end of your response, if the user hasn't provided enough information for a complete recommendation, add a helpful note like: "To provide more specific recommendations, it would be helpful to know [missing information]."`;
 
       const messages = [
         { role: 'system', content: systemPrompt },
@@ -86,22 +98,30 @@ Respond naturally to the user's message and include relevant recommendations whe
 
   static async generateItinerary(tripData: TripData, chatHistory: ChatMessage[]): Promise<AIResponse> {
     try {
+      // Build context from available trip data
+      const contextParts = [];
+      if (tripData.tripType) contextParts.push(`Type: ${tripData.tripType}`);
+      if (tripData.fromLocation) contextParts.push(`From: ${tripData.fromLocation}`);
+      if (tripData.toLocation) contextParts.push(`To: ${tripData.toLocation}`);
+      if (tripData.startDate && tripData.endDate) contextParts.push(`Dates: ${tripData.startDate} to ${tripData.endDate}`);
+      if (tripData.budget) contextParts.push(`Budget: $${tripData.budget}`);
+      if (tripData.people) contextParts.push(`People: ${tripData.people}`);
+      if (tripData.preferences && tripData.preferences.length > 0) contextParts.push(`Preferences: ${tripData.preferences.join(', ')}`);
+      
+      const tripContext = contextParts.length > 0 ? contextParts.join('\n- ') : 'No specific trip details provided yet';
+
       const systemPrompt = `Create a detailed day-by-day itinerary for this trip:
 
 Trip Details:
-- Type: ${tripData.tripType}
-- From: ${tripData.fromLocation}
-- To: ${tripData.toLocation}
-- Dates: ${tripData.startDate} to ${tripData.endDate}
-- Budget: $${tripData.budget}
-- People: ${tripData.people}
-- Preferences: ${tripData.preferences.join(', ')}
+- ${tripContext}
 
 Please provide:
 1. A natural language summary of the itinerary
 2. Specific recommendations for each day including hotels, restaurants, activities, and transport
 3. Realistic costs and timing
-4. Options that fit within the budget
+4. Options that fit within the budget (if provided)
+
+If specific details are missing (like destination, dates, or budget), create a general itinerary template and suggest what additional information would make it more specific.
 
 Embed recommendations naturally in your response as JSON objects with this format:
 { "type": "hotel|restaurant|activity|flight|transport", "name": "Name", "description": "Description", "location": "Address", "cost": 25, "rating": 4.5, "image": "https://images.unsplash.com/photo-...", "bookingUrl": "https://booking.com/..." }
@@ -110,7 +130,9 @@ IMPORTANT:
 - Do NOT wrap JSON in \`\`\`json code blocks
 - Embed the JSON objects directly in your natural language response
 - Include all required fields: type, name, description, location, cost, rating, image, bookingUrl
-- Use realistic values for cost and rating`;
+- Use realistic values for cost and rating
+
+If trip details are incomplete, provide a template itinerary and suggest what additional information would make it more personalized.`;
 
       const messages = [
         { role: 'system', content: systemPrompt },
