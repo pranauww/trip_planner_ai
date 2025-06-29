@@ -40,8 +40,8 @@ An AI-powered travel planning application with a visual-first interface that tra
 
 1. **Clone the repository**
    ```bash
-   git clone <repository-url>
-   cd travel-ai-companion
+   git clone https://github.com/pranauww/trip_planner_ai.git
+   cd trip_planner_ai
    ```
 
 2. **Install dependencies**
@@ -125,7 +125,7 @@ An AI-powered travel planning application with a visual-first interface that tra
 - Browse AI-generated day-by-day itinerary with detailed information
 - See AI-generated insights about weather and local tips
 
-## 🎯 Key Differentiators from Mindtrip AI
+## 🎯 Key Features
 
 ### **Form-First Approach**
 - Instead of conversational input for basic details, we use structured forms
@@ -203,40 +203,8 @@ src/
 - Enhance visual components with real API data
 - Modify AI prompts in `aiService.ts`
 
-## 🚀 Deployment
-
-### Build for Production
-```bash
-npm run build
-```
-
-### Deploy to Vercel
-```bash
-npm install -g vercel
-vercel
-```
-
-### Deploy to Netlify
-```bash
-npm run build
-# Upload the build folder to Netlify
-```
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
 ## 🙏 Acknowledgments
 
-- Inspired by Mindtrip AI's innovative approach to travel planning
 - Built with modern React and TypeScript best practices
 - Uses beautiful UI libraries and tools from the open-source community
 - Powered by OpenAI's GPT-4 for intelligent travel recommendations
