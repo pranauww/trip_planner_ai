@@ -1,5 +1,5 @@
 export interface TripData {
-  tripType: 'vacation' | 'business' | 'road-trip' | 'weekend-getaway' | 'day-trip';
+  tripType?: 'vacation' | 'business' | 'road-trip' | 'weekend-getaway' | 'day-trip' | '';
   fromLocation: string;
   toLocation: string;
   startDate: string;

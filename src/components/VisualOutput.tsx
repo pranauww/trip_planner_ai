@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import { TripData, ChatMessage, ItineraryItem } from '../types';
 import { AIService } from '../services/aiService';
+import { formatTextWithLineBreaks } from '../utils/textFormatting';
 import InteractiveMap from './InteractiveMap';
 import GlobeView from './GlobeView';
 import ItineraryCard from './ItineraryCard';
@@ -154,7 +155,7 @@ const VisualOutput: React.FC<VisualOutputProps> = ({ tripData, chatMessages }) =
       <div className="flex items-center justify-center min-h-96">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-400">Generating your AI-powered itinerary...</p>
+          <p className="text-gray-400 text-base">Generating your AI-powered itinerary...</p>
         </div>
       </div>
     );
@@ -174,7 +175,7 @@ const VisualOutput: React.FC<VisualOutputProps> = ({ tripData, chatMessages }) =
               {tripData.tripType && `Your ${tripData.tripType}`}
               {tripData.toLocation && ` to ${tripData.toLocation}`}
             </h1>
-            <p className="text-gray-400 mt-1">
+            <p className="text-gray-400 mt-1 text-base">
               {tripData.startDate && tripData.endDate && `${tripData.startDate} - ${tripData.endDate}`}
               {tripData.people && ` • ${tripData.people} people`}
             </p>
@@ -214,7 +215,7 @@ const VisualOutput: React.FC<VisualOutputProps> = ({ tripData, chatMessages }) =
           <div className="bg-gray-700 p-4 rounded-lg border border-gray-600">
             <div className="flex items-center space-x-2">
               <MapPin className="w-5 h-5 text-blue-400" />
-              <span className="text-sm font-medium text-gray-300">Route</span>
+              <span className="text-base font-medium text-gray-300">Route</span>
             </div>
             <p className="text-lg font-semibold text-white mt-1">
               {tripData.fromLocation && tripData.toLocation ? `${tripData.fromLocation} → ${tripData.toLocation}` : 'TBD'}
@@ -223,7 +224,7 @@ const VisualOutput: React.FC<VisualOutputProps> = ({ tripData, chatMessages }) =
           <div className="bg-gray-700 p-4 rounded-lg border border-gray-600">
             <div className="flex items-center space-x-2">
               <Calendar className="w-5 h-5 text-green-400" />
-              <span className="text-sm font-medium text-gray-300">Duration</span>
+              <span className="text-base font-medium text-gray-300">Duration</span>
             </div>
             <p className="text-lg font-semibold text-white mt-1">
               {days} days
@@ -232,7 +233,7 @@ const VisualOutput: React.FC<VisualOutputProps> = ({ tripData, chatMessages }) =
           <div className="bg-gray-700 p-4 rounded-lg border border-gray-600">
             <div className="flex items-center space-x-2">
               <DollarSign className="w-5 h-5 text-purple-400" />
-              <span className="text-sm font-medium text-gray-300">Total Cost</span>
+              <span className="text-base font-medium text-gray-300">Total Cost</span>
             </div>
             <p className="text-lg font-semibold text-white mt-1">
               ${totalCost}
@@ -241,7 +242,7 @@ const VisualOutput: React.FC<VisualOutputProps> = ({ tripData, chatMessages }) =
           <div className="bg-gray-700 p-4 rounded-lg border border-gray-600">
             <div className="flex items-center space-x-2">
               <Users className="w-5 h-5 text-orange-400" />
-              <span className="text-sm font-medium text-gray-300">Travelers</span>
+              <span className="text-base font-medium text-gray-300">Travelers</span>
             </div>
             <p className="text-lg font-semibold text-white mt-1">
               {tripData.people || 'TBD'}
@@ -261,7 +262,7 @@ const VisualOutput: React.FC<VisualOutputProps> = ({ tripData, chatMessages }) =
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id as any)}
-              className={`flex-1 flex items-center justify-center space-x-2 py-3 px-4 rounded-lg font-medium transition-all ${
+              className={`flex-1 flex items-center justify-center space-x-2 py-3 px-4 rounded-lg font-medium transition-all text-base ${
                 activeTab === tab.id
                   ? 'bg-blue-600 text-white shadow-lg'
                   : 'text-gray-400 hover:bg-gray-700'
@@ -310,7 +311,7 @@ const VisualOutput: React.FC<VisualOutputProps> = ({ tripData, chatMessages }) =
                   <button
                     key={day}
                     onClick={() => setSelectedDay(day)}
-                    className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                    className={`px-4 py-2 rounded-lg font-medium transition-colors text-base ${
                       selectedDay === day
                         ? 'bg-blue-600 text-white'
                         : 'bg-gray-700 text-gray-400 hover:bg-gray-600'
@@ -339,17 +340,17 @@ const VisualOutput: React.FC<VisualOutputProps> = ({ tripData, chatMessages }) =
         animate={{ opacity: 1, y: 0 }}
         className="bg-gray-800 rounded-lg shadow-xl p-6 border border-gray-700"
       >
-        <h3 className="text-xl font-semibold text-white mb-4">AI Travel Insights</h3>
+        <h3 className="text-2xl font-semibold text-white mb-4">AI Travel Insights</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <h4 className="font-medium text-white mb-2">AI Recommendations</h4>
-            <p className="text-gray-300 text-sm">
-              {aiInsights || 'Based on your preferences and trip details, I\'ve curated a personalized itinerary that balances your interests with the best experiences available.'}
+            <h4 className="font-medium text-white mb-2 text-lg">AI Recommendations</h4>
+            <p className="text-gray-300 text-lg">
+              {aiInsights ? formatTextWithLineBreaks(aiInsights) : 'Based on your preferences and trip details, I\'ve curated a personalized itinerary that balances your interests with the best experiences available.'}
             </p>
           </div>
           <div>
-            <h4 className="font-medium text-white mb-2">Local Tips</h4>
-            <p className="text-gray-300 text-sm">
+            <h4 className="font-medium text-white mb-2 text-lg">Local Tips</h4>
+            <p className="text-gray-300 text-lg">
               Best time to visit attractions is early morning. Local currency is accepted 
               everywhere, but credit cards are preferred for larger purchases.
             </p>

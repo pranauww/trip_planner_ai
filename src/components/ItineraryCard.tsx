@@ -12,6 +12,7 @@ import {
   Car
 } from 'lucide-react';
 import { ItineraryItem } from '../types';
+import { formatTextWithLineBreaks } from '../utils/textFormatting';
 
 interface ItineraryCardProps {
   item: ItineraryItem;
@@ -85,7 +86,7 @@ const ItineraryCard: React.FC<ItineraryCardProps> = ({ item }) => {
                 <TypeIcon className="w-4 h-4" />
               </div>
               <div>
-                <h3 className="font-semibold text-white">{item.activity}</h3>
+                <h3 className="font-semibold text-white text-base">{item.activity}</h3>
                 <div className="flex items-center space-x-4 text-sm text-gray-400">
                   <div className="flex items-center space-x-1">
                     <Clock className="w-3 h-3" />
@@ -110,28 +111,30 @@ const ItineraryCard: React.FC<ItineraryCardProps> = ({ item }) => {
             </div>
           </div>
 
-          <p className="text-sm text-gray-300 mb-3">{item.description}</p>
+          <p className="text-sm text-gray-300 mb-3">
+            {formatTextWithLineBreaks(item.description)}
+          </p>
 
           {/* Action Buttons */}
           <div className="flex items-center space-x-2">
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="px-3 py-1 bg-blue-600 text-white text-xs rounded-lg hover:bg-blue-700 transition-colors"
+              className="px-3 py-1 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition-colors"
             >
               View Details
             </motion.button>
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="px-3 py-1 bg-gray-700 text-gray-300 text-xs rounded-lg hover:bg-gray-600 transition-colors"
+              className="px-3 py-1 bg-gray-700 text-gray-300 text-sm rounded-lg hover:bg-gray-600 transition-colors"
             >
               Book Now
             </motion.button>
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="px-3 py-1 bg-gray-700 text-gray-300 text-xs rounded-lg hover:bg-gray-600 transition-colors"
+              className="px-3 py-1 bg-gray-700 text-gray-300 text-sm rounded-lg hover:bg-gray-600 transition-colors"
             >
               Save
             </motion.button>

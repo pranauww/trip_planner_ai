@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Send, Bot, User, Sparkles, MapPin, Calendar, DollarSign, Star, ExternalLink } from 'lucide-react';
 import { TripData, ChatMessage, TravelRecommendation } from '../types';
 import { AIService } from '../services/aiService';
+import { formatTextWithLineBreaks } from '../utils/textFormatting';
 import toast from 'react-hot-toast';
 
 interface ChatInterfaceProps {
@@ -127,17 +128,19 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
         </div>
         <div className="flex-1 p-3">
           <div className="flex items-start justify-between mb-1">
-            <h4 className="font-semibold text-white text-sm">{recommendation.name}</h4>
+            <h4 className="font-semibold text-white text-base">{recommendation.name}</h4>
             <div className="flex items-center space-x-1">
               <Star className="w-3 h-3 text-yellow-400 fill-current" />
-              <span className="text-xs text-gray-400">{recommendation.rating}</span>
+              <span className="text-sm text-gray-400">{recommendation.rating}</span>
             </div>
           </div>
-          <p className="text-xs text-gray-300 mb-2">{recommendation.description}</p>
+          <p className="text-sm text-gray-300 mb-2">
+            {formatTextWithLineBreaks(recommendation.description)}
+          </p>
           <div className="flex items-center justify-between">
-            <span className="text-xs text-gray-400">{recommendation.location}</span>
+            <span className="text-sm text-gray-400">{recommendation.location}</span>
             {recommendation.cost && (
-              <span className="text-xs font-medium text-green-400">${recommendation.cost}</span>
+              <span className="text-sm font-medium text-green-400">${recommendation.cost}</span>
             )}
           </div>
           {recommendation.bookingUrl && recommendation.bookingUrl !== '#' && (
@@ -145,7 +148,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
               href={recommendation.bookingUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center space-x-1 text-xs text-blue-400 hover:text-blue-300 mt-2"
+              className="inline-flex items-center space-x-1 text-sm text-blue-400 hover:text-blue-300 mt-2"
             >
               <span>Book Now</span>
               <ExternalLink className="w-3 h-3" />
@@ -166,7 +169,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
           </div>
           <div>
             <h2 className="text-lg font-semibold text-white">AI Travel Assistant</h2>
-            <p className="text-gray-400 text-sm">
+            <p className="text-gray-400 text-base">
               {tripData.tripType && `Planning your ${tripData.tripType}`}
               {tripData.toLocation && ` to ${tripData.toLocation}`}
             </p>
@@ -174,7 +177,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
         </div>
         
         {/* Trip Summary Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
           {tripData.fromLocation && tripData.toLocation && (
             <div className="flex items-center space-x-2 text-gray-300">
               <MapPin className="w-3 h-3" />
@@ -224,8 +227,10 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
                     <Bot className="w-4 h-4 text-blue-400 mt-0.5 flex-shrink-0" />
                   )}
                   <div className="flex-1">
-                    <p className="text-sm leading-relaxed">{message.content}</p>
-                    <p className={`text-xs mt-2 ${
+                    <p className="text-lg leading-relaxed">
+                      {formatTextWithLineBreaks(message.content)}
+                    </p>
+                    <p className={`text-base mt-2 ${
                       message.type === 'user' ? 'text-blue-100' : 'text-gray-400'
                     }`}>
                       {message.timestamp.toLocaleTimeString([], { 
@@ -270,7 +275,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
             animate={{ opacity: 1, y: 0 }}
             className="space-y-3"
           >
-            <h4 className="text-sm font-medium text-gray-300">AI Recommendations:</h4>
+            <h4 className="text-lg font-medium text-gray-300">AI Recommendations:</h4>
             <div className="space-y-2">
               {currentRecommendations.map((rec, index) => (
                 <RecommendationCard key={index} recommendation={rec} />
@@ -285,13 +290,13 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
       {/* Quick Suggestions */}
       {messages.length > 1 && (
         <div className="px-4 pb-4">
-          <p className="text-sm text-gray-400 mb-3">Quick suggestions:</p>
+          <p className="text-lg text-gray-400 mb-3">Quick suggestions:</p>
           <div className="flex flex-wrap gap-2">
             {quickSuggestions.map((suggestion, index) => (
               <button
                 key={index}
                 onClick={() => setInputMessage(suggestion)}
-                className="px-3 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 text-sm rounded-lg transition-colors border border-gray-700"
+                className="px-3 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 text-lg rounded-lg transition-colors border border-gray-700"
               >
                 {suggestion}
               </button>
@@ -309,7 +314,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
               onChange={(e) => setInputMessage(e.target.value)}
               onKeyPress={handleKeyPress}
               placeholder="Ask me anything about your trip..."
-              className="w-full px-4 py-3 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none bg-gray-800 text-white placeholder-gray-400"
+              className="w-full px-4 py-3 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none bg-gray-800 text-white placeholder-gray-400 text-lg"
               rows={1}
               disabled={isTyping}
             />

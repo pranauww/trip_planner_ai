@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { motion } from 'framer-motion';
 import { 
@@ -22,22 +22,30 @@ import {
 import { TripData } from '../types';
 
 interface TripFormProps {
-  onComplete: (data: TripData) => void;
+  tripData: TripData;
+  onTripDataChange: (data: TripData) => void;
 }
 
-const TripForm: React.FC<TripFormProps> = ({ onComplete }) => {
-  const [selectedPreferences, setSelectedPreferences] = useState<string[]>([]);
+const TripForm: React.FC<TripFormProps> = ({ tripData, onTripDataChange }) => {
+  const [selectedPreferences, setSelectedPreferences] = useState<string[]>(tripData.preferences || []);
   const { register, handleSubmit, formState: { errors }, watch, setValue } = useForm<TripData>();
   
-  const [budget, setBudget] = useState(1000);
-  const [people, setPeople] = useState(2);
+  const [budget, setBudget] = useState(tripData.budget || 1000);
+  const [people, setPeople] = useState(tripData.people || 2);
+
+  // Update form when tripData changes
+  useEffect(() => {
+    setSelectedPreferences(tripData.preferences || []);
+    setBudget(tripData.budget || 1000);
+    setPeople(tripData.people || 2);
+  }, [tripData]);
 
   const tripTypes = [
     { id: 'vacation', label: 'Vacation', icon: Plane, color: 'bg-blue-500' },
     { id: 'business', label: 'Business', icon: Building, color: 'bg-gray-500' },
-    { id: 'roadtrip', label: 'Road Trip', icon: Car, color: 'bg-green-500' },
-    { id: 'weekend', label: 'Weekend Getaway', icon: Calendar, color: 'bg-purple-500' },
-    { id: 'daytrip', label: 'Day Trip', icon: MapPin, color: 'bg-orange-500' },
+    { id: 'road-trip', label: 'Road Trip', icon: Car, color: 'bg-green-500' },
+    { id: 'weekend-getaway', label: 'Weekend Getaway', icon: Calendar, color: 'bg-purple-500' },
+    { id: 'day-trip', label: 'Day Trip', icon: MapPin, color: 'bg-orange-500' },
   ];
 
   const preferences = [
@@ -52,20 +60,16 @@ const TripForm: React.FC<TripFormProps> = ({ onComplete }) => {
   ];
 
   const togglePreference = (pref: string) => {
-    setSelectedPreferences(prev => 
-      prev.includes(pref) 
-        ? prev.filter(p => p !== pref)
-        : [...prev, pref]
-    );
+    const newPreferences = selectedPreferences.includes(pref) 
+      ? selectedPreferences.filter(p => p !== pref)
+      : [...selectedPreferences, pref];
+    setSelectedPreferences(newPreferences);
+    updateTripData({ ...tripData, preferences: newPreferences });
   };
 
-  const onSubmitForm = (data: TripData) => {
-    onComplete({
-      ...data,
-      budget: budget,
-      people: people,
-      preferences: selectedPreferences,
-    });
+  const updateTripData = (newData: Partial<TripData>) => {
+    const updatedData = { ...tripData, ...newData };
+    onTripDataChange(updatedData);
   };
 
   const formatCurrency = (value: number) => {
@@ -83,15 +87,15 @@ const TripForm: React.FC<TripFormProps> = ({ onComplete }) => {
         <h2 className="text-2xl font-bold text-white mb-2">
           Trip Details
         </h2>
-        <p className="text-gray-400 text-sm">
+        <p className="text-gray-400 text-base">
           Fill in what you know - all fields are optional!
         </p>
       </div>
 
-      <form onSubmit={handleSubmit(onSubmitForm)} className="flex-1 flex flex-col space-y-6">
+      <div className="flex-1 flex flex-col space-y-6">
         {/* Trip Type Selection */}
         <div>
-          <label className="block text-sm font-medium text-gray-300 mb-3">
+          <label className="block text-base font-medium text-gray-300 mb-3">
             Trip Type (Optional)
           </label>
           <div className="grid grid-cols-2 gap-2">
@@ -103,14 +107,19 @@ const TripForm: React.FC<TripFormProps> = ({ onComplete }) => {
                 <input
                   type="radio"
                   value={type.id}
-                  {...register('tripType')}
+                  checked={tripData.tripType === type.id}
+                  onChange={(e) => updateTripData({ tripType: e.target.value as any })}
                   className="sr-only"
                 />
-                <div className="flex flex-col items-center p-3 border-2 border-gray-600 rounded-lg hover:border-blue-400 transition-colors group-hover:scale-105 bg-gray-700">
+                <div className={`flex flex-col items-center p-3 border-2 rounded-lg transition-colors group-hover:scale-105 bg-gray-700 ${
+                  tripData.tripType === type.id 
+                    ? 'border-blue-400' 
+                    : 'border-gray-600 hover:border-gray-500'
+                }`}>
                   <div className={`w-8 h-8 rounded-full ${type.color} flex items-center justify-center mb-1`}>
                     <type.icon className="w-4 h-4 text-white" />
                   </div>
-                  <span className="text-xs font-medium text-gray-300">{type.label}</span>
+                  <span className="text-sm font-medium text-gray-300">{type.label}</span>
                 </div>
               </label>
             ))}
@@ -120,7 +129,7 @@ const TripForm: React.FC<TripFormProps> = ({ onComplete }) => {
         {/* Location Inputs */}
         <div className="space-y-3">
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
+            <label className="block text-base font-medium text-gray-300 mb-2">
               From (Optional)
             </label>
             <div className="relative">
@@ -128,14 +137,15 @@ const TripForm: React.FC<TripFormProps> = ({ onComplete }) => {
               <input
                 type="text"
                 placeholder="Starting location"
-                {...register('fromLocation')}
-                className="w-full pl-9 pr-3 py-2 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-700 text-white placeholder-gray-400"
+                value={tripData.fromLocation}
+                onChange={(e) => updateTripData({ fromLocation: e.target.value })}
+                className="w-full pl-9 pr-3 py-3 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-700 text-white placeholder-gray-400 text-base"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
+            <label className="block text-base font-medium text-gray-300 mb-2">
               To (Optional)
             </label>
             <div className="relative">
@@ -143,8 +153,9 @@ const TripForm: React.FC<TripFormProps> = ({ onComplete }) => {
               <input
                 type="text"
                 placeholder="Destination"
-                {...register('toLocation')}
-                className="w-full pl-9 pr-3 py-2 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-700 text-white placeholder-gray-400"
+                value={tripData.toLocation}
+                onChange={(e) => updateTripData({ toLocation: e.target.value })}
+                className="w-full pl-9 pr-3 py-3 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-700 text-white placeholder-gray-400 text-base"
               />
             </div>
           </div>
@@ -153,29 +164,31 @@ const TripForm: React.FC<TripFormProps> = ({ onComplete }) => {
         {/* Date Range */}
         <div className="space-y-3">
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
+            <label className="block text-base font-medium text-gray-300 mb-2">
               Start Date (Optional)
             </label>
             <div className="relative">
               <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
               <input
                 type="date"
-                {...register('startDate')}
-                className="w-full pl-9 pr-3 py-2 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-700 text-white"
+                value={tripData.startDate}
+                onChange={(e) => updateTripData({ startDate: e.target.value })}
+                className="w-full pl-9 pr-3 py-3 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-700 text-white text-base"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
+            <label className="block text-base font-medium text-gray-300 mb-2">
               End Date (Optional)
             </label>
             <div className="relative">
               <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
               <input
                 type="date"
-                {...register('endDate')}
-                className="w-full pl-9 pr-3 py-2 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-700 text-white"
+                value={tripData.endDate}
+                onChange={(e) => updateTripData({ endDate: e.target.value })}
+                className="w-full pl-9 pr-3 py-3 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-700 text-white text-base"
               />
             </div>
           </div>
@@ -183,7 +196,7 @@ const TripForm: React.FC<TripFormProps> = ({ onComplete }) => {
 
         {/* Budget Slider */}
         <div>
-          <label className="block text-sm font-medium text-gray-300 mb-2">
+          <label className="block text-base font-medium text-gray-300 mb-2">
             Budget: {formatCurrency(budget)}
           </label>
           <div className="relative">
@@ -193,10 +206,14 @@ const TripForm: React.FC<TripFormProps> = ({ onComplete }) => {
               max="10000"
               step="100"
               value={budget}
-              onChange={(e) => setBudget(Number(e.target.value))}
+              onChange={(e) => {
+                const newBudget = Number(e.target.value);
+                setBudget(newBudget);
+                updateTripData({ budget: newBudget });
+              }}
               className="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer slider"
             />
-            <div className="flex justify-between text-xs text-gray-400 mt-1">
+            <div className="flex justify-between text-sm text-gray-400 mt-1">
               <span>$100</span>
               <span>$10,000</span>
             </div>
@@ -205,7 +222,7 @@ const TripForm: React.FC<TripFormProps> = ({ onComplete }) => {
 
         {/* People Slider */}
         <div>
-          <label className="block text-sm font-medium text-gray-300 mb-2">
+          <label className="block text-base font-medium text-gray-300 mb-2">
             Number of People: {people}
           </label>
           <div className="relative">
@@ -215,10 +232,14 @@ const TripForm: React.FC<TripFormProps> = ({ onComplete }) => {
               max="10"
               step="1"
               value={people}
-              onChange={(e) => setPeople(Number(e.target.value))}
+              onChange={(e) => {
+                const newPeople = Number(e.target.value);
+                setPeople(newPeople);
+                updateTripData({ people: newPeople });
+              }}
               className="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer slider"
             />
-            <div className="flex justify-between text-xs text-gray-400 mt-1">
+            <div className="flex justify-between text-sm text-gray-400 mt-1">
               <span>1</span>
               <span>10</span>
             </div>
@@ -227,7 +248,7 @@ const TripForm: React.FC<TripFormProps> = ({ onComplete }) => {
 
         {/* Preferences */}
         <div>
-          <label className="block text-sm font-medium text-gray-300 mb-3">
+          <label className="block text-base font-medium text-gray-300 mb-3">
             Interests (Optional)
           </label>
           <div className="grid grid-cols-2 gap-2">
@@ -236,13 +257,13 @@ const TripForm: React.FC<TripFormProps> = ({ onComplete }) => {
                 key={pref.id}
                 type="button"
                 onClick={() => togglePreference(pref.id)}
-                className={`flex items-center space-x-2 p-2 rounded-lg border-2 transition-all text-xs ${
+                className={`flex items-center space-x-2 p-3 rounded-lg border-2 transition-all text-sm ${
                   selectedPreferences.includes(pref.id)
                     ? 'border-blue-500 bg-blue-600 text-white'
                     : 'border-gray-600 hover:border-gray-500 text-gray-300 bg-gray-700'
                 }`}
               >
-                <pref.icon className="w-3 h-3" />
+                <pref.icon className="w-4 h-4" />
                 <span className="font-medium">{pref.label}</span>
               </button>
             ))}
@@ -251,28 +272,18 @@ const TripForm: React.FC<TripFormProps> = ({ onComplete }) => {
 
         {/* Additional Notes */}
         <div>
-          <label className="block text-sm font-medium text-gray-300 mb-2">
+          <label className="block text-base font-medium text-gray-300 mb-2">
             Additional Notes (Optional)
           </label>
           <textarea
             placeholder="Any special requirements, must-see places, or preferences..."
-            {...register('notes')}
+            value={tripData.notes || ''}
+            onChange={(e) => updateTripData({ notes: e.target.value })}
             rows={3}
-            className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none bg-gray-700 text-white placeholder-gray-400"
+            className="w-full px-3 py-3 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none bg-gray-700 text-white placeholder-gray-400 text-base"
           />
         </div>
-
-        {/* Submit Button */}
-        <motion.button
-          type="submit"
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
-          className="w-full bg-blue-600 text-white py-3 px-4 rounded-lg font-semibold hover:bg-blue-700 transition-colors flex items-center justify-center space-x-2 mt-auto"
-        >
-          <Send className="w-4 h-4" />
-          <span>Start Planning</span>
-        </motion.button>
-      </form>
+      </div>
     </div>
   );
 };

@@ -15,7 +15,7 @@ const Header: React.FC = () => {
         </div>
         
         <div className="flex items-center space-x-4">
-          <div className="flex items-center space-x-2 text-gray-400 text-sm">
+          <div className="flex items-center space-x-2 text-gray-400 text-base">
             <div className="w-2 h-2 bg-green-500 rounded-full"></div>
             <span>AI Online</span>
           </div>
