@@ -73,7 +73,7 @@ const ItineraryCard: React.FC<ItineraryCardProps> = ({ item }) => {
             className="w-full h-full object-cover"
             onError={(e) => {
               const target = e.target as HTMLImageElement;
-              target.src = 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=400';
+              target.src = 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=400&fit=crop';
             }}
           />
         </div>

@@ -4,6 +4,7 @@ import { Send, Bot, User, Sparkles, MapPin, Calendar, DollarSign, Star, External
 import { TripData, ChatMessage, TravelRecommendation } from '../types';
 import { AIService } from '../services/aiService';
 import { formatTextWithLineBreaks } from '../utils/textFormatting';
+import InteractiveMap from './InteractiveMap';
 import toast from 'react-hot-toast';
 
 interface ChatInterfaceProps {
@@ -26,6 +27,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
   const [inputMessage, setInputMessage] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [currentRecommendations, setCurrentRecommendations] = useState<TravelRecommendation[]>([]);
+  const [showMap, setShowMap] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -35,6 +37,27 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
+  // Convert TravelRecommendation to ItineraryItem for the map
+  const convertRecommendationsToItinerary = (recommendations: TravelRecommendation[]) => {
+    return recommendations.map((rec, index) => ({
+      id: (index + 1).toString(),
+      day: Math.floor(index / 4) + 1, // Distribute across days
+      time: getTimeForIndex(index),
+      activity: rec.name,
+      location: rec.location,
+      description: rec.description,
+      type: rec.type,
+      cost: rec.cost || Math.floor(Math.random() * 200) + 50,
+      rating: typeof rec.rating === 'string' ? parseFloat(rec.rating) : (rec.rating || 4.0),
+      image: rec.image || 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=400&fit=crop'
+    }));
+  };
+
+  const getTimeForIndex = (index: number): string => {
+    const times = ['09:00', '12:00', '14:00', '19:00'];
+    return times[index % times.length];
+  };
 
   // Temporary test to verify parsing works
   useEffect(() => {
@@ -72,8 +95,13 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
       // Set recommendations if any
       if (aiResponse.recommendations && aiResponse.recommendations.length > 0) {
         setCurrentRecommendations(aiResponse.recommendations);
+        // Show map if we have enough recommendations (3 or more)
+        if (aiResponse.recommendations.length >= 3) {
+          setShowMap(true);
+        }
       } else {
         setCurrentRecommendations([]); // Clear previous recommendations
+        setShowMap(false);
       }
       
     } catch (error) {
@@ -122,7 +150,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
             className="w-full h-full object-cover"
             onError={(e) => {
               const target = e.target as HTMLImageElement;
-              target.src = 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=400';
+              target.src = 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=400&fit=crop';
             }}
           />
         </div>
@@ -284,6 +312,24 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
           </motion.div>
         )}
 
+        {/* Interactive Map */}
+        {showMap && tripData.fromLocation && tripData.toLocation && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="space-y-3"
+          >
+            <h4 className="text-lg font-medium text-gray-300">Interactive Map:</h4>
+            <div className="h-80 rounded-lg overflow-hidden border border-gray-700">
+              <InteractiveMap
+                fromLocation={tripData.fromLocation}
+                toLocation={tripData.toLocation}
+                itinerary={convertRecommendationsToItinerary(currentRecommendations)}
+              />
+            </div>
+          </motion.div>
+        )}
+
         <div ref={messagesEndRef} />
       </div>
 
@@ -331,20 +377,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
         </div>
       </div>
 
-      {/* Complete Button */}
-      {messages.length > 3 && (
-        <div className="px-4 pb-4">
-          <motion.button
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            onClick={onComplete}
-            className="w-full bg-green-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-green-700 transition-colors flex items-center justify-center space-x-2"
-          >
-            <Sparkles className="w-5 h-5" />
-            <span>Generate Visual Itinerary</span>
-          </motion.button>
-        </div>
-      )}
+
     </div>
   );
 };

@@ -29,20 +29,28 @@ const InteractiveMap: React.FC<InteractiveMapProps> = ({
 
     mapboxgl.accessToken = mapboxToken;
 
-    if (map.current) return; // Initialize map only once
+    // Clean up existing map
+    if (map.current) {
+      map.current.remove();
+      map.current = null;
+    }
 
     if (mapContainer.current) {
+      // Get coordinates for from and to locations
+      const fromCoords = getCoordinatesForLocation(fromLocation);
+      const toCoords = getCoordinatesForLocation(toLocation);
+      
       map.current = new mapboxgl.Map({
         container: mapContainer.current,
         style: 'mapbox://styles/mapbox/streets-v12',
-        center: [-122.4194, 37.7749], // San Francisco default
+        center: fromCoords,
         zoom: 10
       });
 
       map.current.on('load', () => {
         if (!map.current) return;
 
-        // Add route line
+        // Add route line between from and to locations
         map.current.addSource('route', {
           type: 'geojson',
           data: {
@@ -50,10 +58,7 @@ const InteractiveMap: React.FC<InteractiveMapProps> = ({
             properties: {},
             geometry: {
               type: 'LineString',
-              coordinates: [
-                [-121.7405, 38.5449], // Davis, CA
-                [-122.4194, 37.7749]  // San Francisco, CA
-              ]
+              coordinates: [fromCoords, toCoords]
             }
           }
         });
@@ -75,7 +80,7 @@ const InteractiveMap: React.FC<InteractiveMapProps> = ({
 
         // Add markers for itinerary items
         itinerary.forEach((item, index) => {
-          // Generate coordinates based on item location (simplified)
+          // Generate coordinates based on item location
           const coordinates = getCoordinatesForLocation(item.location);
           
           // Create marker element
@@ -109,8 +114,8 @@ const InteractiveMap: React.FC<InteractiveMapProps> = ({
 
         // Fit map to show all markers and route
         const bounds = new mapboxgl.LngLatBounds();
-        bounds.extend([-121.7405, 38.5449]); // Davis
-        bounds.extend([-122.4194, 37.7749]); // San Francisco
+        bounds.extend(fromCoords);
+        bounds.extend(toCoords);
         
         itinerary.forEach(item => {
           const coords = getCoordinatesForLocation(item.location);
@@ -131,12 +136,22 @@ const InteractiveMap: React.FC<InteractiveMapProps> = ({
     };
   }, [fromLocation, toLocation, itinerary]);
 
-  // Helper function to get coordinates for locations (simplified)
+  // Helper function to get coordinates for locations (improved)
   const getCoordinatesForLocation = (location: string): [number, number] => {
-    // This is a simplified mapping - in a real app, you'd use geocoding
+    // Expanded mapping for more cities and famous locations
     const locationMap: { [key: string]: [number, number] } = {
       'Davis': [-121.7405, 38.5449],
       'San Francisco': [-122.4194, 37.7749],
+      'New York': [-74.006, 40.7128],
+      'Los Angeles': [-118.2437, 34.0522],
+      'London': [-0.1276, 51.5074],
+      'Paris': [2.3522, 48.8566],
+      'Tokyo': [139.6917, 35.6895],
+      'Rome': [12.4964, 41.9028],
+      'Sydney': [151.2093, -33.8688],
+      'Dubai': [55.2708, 25.2048],
+      'Singapore': [103.8198, 1.3521],
+      'Bangkok': [100.5018, 13.7563],
       'Fisherman\'s Wharf': [-122.4094, 37.8087],
       'Golden Gate Bridge': [-122.4783, 37.8199],
       'Union Square': [-122.4084, 37.7879],
@@ -144,7 +159,15 @@ const InteractiveMap: React.FC<InteractiveMapProps> = ({
       'Twin Peaks': [-122.4474, 37.7516],
       'Civic Center': [-122.4174, 37.7793],
       'North Beach': [-122.4104, 37.8002],
-      'Market Street': [-122.4004, 37.7849]
+      'Market Street': [-122.4004, 37.7849],
+      'Central Park': [-73.9654, 40.7829],
+      'Eiffel Tower': [2.2945, 48.8584],
+      'Colosseum': [12.4922, 41.8902],
+      'Shibuya': [139.7004, 35.6595],
+      'Bondi Beach': [151.2743, -33.8908],
+      'Burj Khalifa': [55.2744, 25.1972],
+      'Marina Bay': [103.8545, 1.2823],
+      'Grand Palace': [100.4913, 13.7500],
     };
 
     // Try to find exact match
@@ -154,7 +177,9 @@ const InteractiveMap: React.FC<InteractiveMapProps> = ({
       }
     }
 
-    // Default to San Francisco if no match found
+    // Fallback: Use Mapbox Geocoding API (synchronously returns SF for now)
+    // In a real app, you would use async geocoding and update the map when results arrive
+    // For now, return San Francisco as a fallback
     return [-122.4194, 37.7749];
   };
 

@@ -53,6 +53,12 @@ IMPORTANT:
 - Embed the JSON objects directly in your natural language response
 - Include all required fields: type, name, description, location, cost, rating, image, bookingUrl
 - Use realistic values for cost and rating
+- For images, use specific Unsplash URLs that match the location and type. Choose from these options:
+  * Hotels: https://images.unsplash.com/photo-1566073771259-6a8506099945?w=400&fit=crop (luxury), https://images.unsplash.com/photo-1501117716987-c8c394bb29aa?w=400&fit=crop (boutique), https://images.unsplash.com/photo-1561409037-1418489f0b65?w=400&fit=crop (hostel)
+  * Restaurants: https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=400&fit=crop (fine dining), https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=400&fit=crop (casual), https://images.unsplash.com/photo-1559339352-11d035aa65de?w=400&fit=crop (street food)
+  * Activities: https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=400&fit=crop (city tour), https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&fit=crop (nature), https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=400&fit=crop (museums)
+  * Flights: https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=400&fit=crop (airplane), https://images.unsplash.com/photo-1556388158-158ea5ccacbd?w=400&fit=crop (airport)
+  * Transport: https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=400&fit=crop (car), https://images.unsplash.com/photo-1570125909232-eb263c188fe7?w=400&fit=crop (public transport)
 
 At the end of your response, if the user hasn't provided enough information for a complete recommendation, add a helpful note like: "To provide more specific recommendations, it would be helpful to know [missing information]."`;
 
@@ -239,11 +245,11 @@ If trip details are incomplete, provide a template itinerary and suggest what ad
 
   private static getDefaultImage(type: string): string {
     const images = {
-      hotel: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=400',
-      restaurant: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=400',
-      activity: 'https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=400',
-      flight: 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=400',
-      transport: 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=400'
+      hotel: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=400&fit=crop',
+      restaurant: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=400&fit=crop',
+      activity: 'https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=400&fit=crop',
+      flight: 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=400&fit=crop',
+      transport: 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=400&fit=crop'
     };
     return images[type as keyof typeof images] || images.activity;
   }

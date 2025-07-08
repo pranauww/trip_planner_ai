@@ -1,35 +1,35 @@
-# 🧠 Travel AI Companion
+# Travel AI Companion
 
 An AI-powered travel planning application with a visual-first interface that transforms your trip ideas into comprehensive itineraries through an intuitive form-based input system and dynamic visual representations.
 
-## ✨ Features
+## Features
 
-### 🎯 **Form-Based Input System**
+### **Form-Based Input System**
 - **Structured Data Collection**: Trip type, locations, dates, budget, and preferences
 - **Visual Trip Type Selection**: Vacation, Business, Road Trip, Weekend Getaway, Day Trip
 - **Smart Preference Selection**: Adventure, Relaxation, Food, Shopping, Culture, Nature, Nightlife, Photography
 - **Real-time Validation**: Form validation with helpful error messages
 
-### 🤖 **AI Chat Interface**
+### **AI Chat Interface**
 - **Conversational Planning**: Natural language interaction with AI assistant
 - **Context-Aware Responses**: AI remembers trip details and preferences
 - **Quick Suggestions**: Pre-built prompts for common travel questions
 - **Real-time Typing Indicators**: Visual feedback during AI processing
 - **AI-Generated Recommendations**: Real hotel, restaurant, and activity suggestions
 
-### 🗺️ **Visual Output Components**
+### **Visual Output Components**
 - **Interactive Maps**: Route visualization with location markers
 - **3D Globe View**: Animated globe showing travel route
 - **Day-by-Day Itinerary**: Detailed schedule with images and ratings
 - **Visual Trip Summary**: Cost breakdown, duration, and traveler info
 
-### 🎨 **Modern UI/UX**
+### **Modern UI/UX**
 - **Responsive Design**: Works on desktop, tablet, and mobile
 - **Smooth Animations**: Framer Motion powered transitions
 - **Beautiful Gradients**: Modern color schemes and visual effects
 - **Intuitive Navigation**: Tab-based interface for different views
 
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
 - Node.js (v16 or higher)
@@ -69,7 +69,7 @@ An AI-powered travel planning application with a visual-first interface that tra
 5. **Open your browser**
    Navigate to `http://localhost:3000`
 
-## 🔧 API Setup
+## API Setup
 
 ### OpenAI API (Required)
 1. Go to [OpenAI Platform](https://platform.openai.com/api-keys)
@@ -83,7 +83,7 @@ An AI-powered travel planning application with a visual-first interface that tra
 3. Generate a new access token
 4. Add it to your `.env` file as `REACT_APP_MAPBOX_TOKEN`
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 ### Frontend
 - **React 18** - Modern React with hooks and functional components
@@ -102,7 +102,7 @@ An AI-powered travel planning application with a visual-first interface that tra
 - **React Hot Toast** - Toast notifications
 - **Date-fns** - Date manipulation utilities
 
-## 📱 Usage
+## Usage
 
 ### 1. **Trip Planning Form**
 - Select your trip type (vacation, business, road trip, etc.)
@@ -125,7 +125,7 @@ An AI-powered travel planning application with a visual-first interface that tra
 - Browse AI-generated day-by-day itinerary with detailed information
 - See AI-generated insights about weather and local tips
 
-## 🎯 Key Features
+## Key Features
 
 ### **Form-First Approach**
 - Instead of conversational input for basic details, we use structured forms
@@ -155,7 +155,7 @@ An AI-powered travel planning application with a visual-first interface that tra
 - Provides realistic costs and ratings
 - Creates detailed itineraries based on preferences
 
-## 🔧 Configuration
+## Configuration
 
 ### Environment Variables
 Create a `.env` file in the root directory:
@@ -171,7 +171,7 @@ The app is designed to integrate with:
 - **Mapbox API** - For interactive maps
 - **Travel APIs** - For real flight/hotel data
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 src/
@@ -190,7 +190,7 @@ src/
 └── index.css                   # Global styles and Tailwind imports
 ```
 
-## 🎨 Customization
+## Customization
 
 ### Styling
 - Modify `tailwind.config.js` for custom colors and animations
@@ -203,7 +203,7 @@ src/
 - Enhance visual components with real API data
 - Modify AI prompts in `aiService.ts`
 
-## 🙏 Acknowledgments
+## Acknowledgments
 
 - Built with modern React and TypeScript best practices
 - Uses beautiful UI libraries and tools from the open-source community
